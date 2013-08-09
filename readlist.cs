@@ -17,6 +17,7 @@ namespace testup
         {
             string uriString = "";
             System.Net.HttpWebRequest req = (System.Net.HttpWebRequest)System.Net.HttpWebRequest.Create(uriString);
+            string destpath = "";
             req.Method = "POST";
             req.UseDefaultCredentials = true;
             req.Host = "sharepoint";
@@ -36,14 +37,11 @@ namespace testup
             dataStream.Write(byteArray, 0, byteArray.Length);
             dataStream.Close();
             System.Net.WebResponse res = req.GetResponse();
-            Console.WriteLine(((System.Net.HttpWebResponse)res).StatusDescription);
-            Console.WriteLine(res.ContentLength);
             System.IO.Stream srcFile = res.GetResponseStream();
             int BUFFER_SIZE = 1024 * 1024;
             byte[] buffer = new byte[BUFFER_SIZE];
             int bytesRead = 0;
             string strxml = "";
-            StringBuilder output = new StringBuilder();
             while ((bytesRead = srcFile.Read(buffer, 0, BUFFER_SIZE)) > 0)
             {
                 strxml += System.Text.Encoding.Default.GetString(buffer, 0, bytesRead);
@@ -58,7 +56,6 @@ namespace testup
                 strxml = strxml.Substring(startid, endid - startid);
                 startid = strxml.IndexOf("\"");
                 endid = strxml.IndexOf("\"", startid + 1);
-                Console.Write(strxml);
                 counts = int.Parse((strxml.Substring(startid + 1, endid - startid - 1)));
                 string filename = "";
                 int version = 0;
@@ -72,14 +69,34 @@ namespace testup
                         filename = strxml.Substring(startid + 1, endid - startid - 1);
                         if (filename.Substring(0, 15) == "Vendor Staffing")
                         {
+                            if (version > int.Parse(filename.Substring(16, 8)))
+                            {
+                                continue;
+                            }
                             version = int.Parse(filename.Substring(16, 8));
                         }
 
                         strxml = strxml.Substring(endid, strxml.Length - endid);
+                        string strdown = uriString.Replace("_vti_bin/lists.asmx", "Shared Documents/" + filename);
+                        req = (System.Net.HttpWebRequest)System.Net.HttpWebRequest.Create(strdown);
+                        req.UseDefaultCredentials = true;
+                        res = (System.Net.HttpWebResponse)req.GetResponse();
+
+                        srcFile = res.GetResponseStream();
+                        System.IO.FileStream destFile = new System.IO.FileStream(destpath + filename, System.IO.FileMode.Create, System.IO.FileAccess.Write, System.IO.FileShare.None, 65536, true);
+
+                        bytesRead = 0;
+                        while ((bytesRead = srcFile.Read(buffer, 0, BUFFER_SIZE)) > 0)
+                        {
+                            destFile.Write(buffer, 0, bytesRead);
+                        }
+                        destFile.Flush();
+                        srcFile.Close();
+                        destFile.Close();
                     }
                 }
-                Console.Write(strxml);
             }
         }
     }
 }
+
