@@ -109,6 +109,9 @@ namespace pht
                                 strwd = strurl + strwd.Substring(1, strwd.Length - 1);
                             }
                             req = (HttpWebRequest)HttpWebRequest.Create(strwd);
+                            req.Timeout = System.Threading.Timeout.Infinite;
+                            req.ReadWriteTimeout = System.Threading.Timeout.Infinite;
+                            req.KeepAlive = true;
                             res = (WebResponse)req.GetResponse();
 
                             str = res.GetResponseStream();
@@ -126,9 +129,9 @@ namespace pht
                                 return;
                             }
                             int j = 0;
-                            icount = 1;
+                            int jcount = 1;
                             iflag = 0;
-                            for (j = istart + 1; j < strxml0.Length && icount > 0; j++)
+                            for (j = istart + 1; j < strxml0.Length && jcount > 0; j++)
                             {
                                 if (iflag == 0 && strxml0[j] == '<')
                                 {
@@ -142,18 +145,18 @@ namespace pht
                                         iflag = 0;
                                         if (strwd == "</div>")
                                         {
-                                            icount--;
+                                            jcount--;
                                         }
                                         il = "<div>".Length;
                                         if (strwd.Length > il && strwd.Substring(0, il - 1) == "<div")
                                         {
-                                            icount++;
+                                            jcount++;
                                         }
                                         strwd = "";
                                     }
                                 }
                             }
-                            if (icount > 0)
+                            if (jcount > 0)
                             {
                                 return;
                             }
