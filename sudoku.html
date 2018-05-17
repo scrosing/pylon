@@ -1,0 +1,321 @@
+<html>
+	<body>
+	<script>
+	var sd = new Array();
+	for (var i = 0; i < 9; i++)
+	{
+		sd[i] = new Array(i);
+		for (var j = 0; j < 9; j++)
+		{
+			sd[i][j] = new Array(j);
+			for (var k = 0; k <= 9; k++)
+			{
+				sd[i][j][k] = k;
+			}
+		}
+	}
+	initialize(sd);
+	recurse(sd);
+	finalize(sd, 0, 0, 0);
+
+function finalize(sod, i, j, v)
+{
+	var arr = new Array();
+	var st;
+	fork(sod, arr);
+	if (v > 0)
+	{
+		set(arr, i, j, v);
+	}
+	if (recurse(arr) == 1)
+	{
+		return 1;
+	}
+	for (var i = 0; i < 9; i++)
+	{
+		for (var j = 0; j < 9; j++)
+		{
+			if (arr[i][j][0] == 0)
+			{
+				for (var k = 1; k <= 9; k++)
+				{
+					if (arr[i][j][k] > 0)
+					{
+						if (finalize(arr, i, j, arr[i][j][k]) == 0)
+						{
+							return 0;
+						}
+					}
+				}
+				if (k > 9)
+				{
+					return 1;
+				}
+			}
+			else
+			{
+				continue;
+			}
+		}
+	}
+	print(arr);
+	return 0;
+
+}
+function except(sod, i, j)
+{
+	var arr = new Array(0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
+	var remain = 0;
+	var x = 0;
+	var y = 0;
+	if (sod[i][j][0] == 0)
+	{
+		for (var m = 0; m < 9; m++)
+		{
+			if (m != j)
+			{
+				if (sod[i][m][0] == 0)
+				{
+				for (var k = 1; k < 9; k++)
+				{
+					if (sod[i][m][k] > 0)
+					{
+						arr[k] = 0;
+					}
+				}
+				}
+				else
+				{
+					arr[sod[i][m][0]] = 0;
+				}
+			}
+			if (m != i)
+			{
+				if (sod[m][j][0] == 0)
+				{
+				for (var k = 1; k < 9; k++)
+				{
+					if (sod[m][j][k] > 0)
+					{
+						arr[k] = 0;
+					}
+				}
+				}
+				else
+				{
+					arr[sod[m][j][0]] = 0;
+				}
+			}
+			x = parseInt(i / 3) * 3 + parseInt(m / 3);
+			y = parseInt(j / 3) * 3 + m % 3;
+			if (x != i && y != j)
+			{
+				if (sod[x][y][0] == 0)
+				{
+				for (var k = 1; k < 9; k++)
+				{
+					if (sod[x][y][k] > 0)
+					{
+						arr[k] = 0;
+					}
+				}
+				}
+				else
+				{
+					arr[sod[x][y][0]] = 0;
+				}
+			}
+		}
+		for (var m = 0; m < 9; m++)
+		{
+			if (arr[m] != 0)
+			{
+				if (remain == 0)
+				{
+					remain = arr[m];
+				}
+				else
+				{
+					remain = 0;
+					break;
+				}
+			}
+		}
+		if (remain > 0)
+		{
+			if (sod[i][j][remain] == remain)
+			{
+				set(sod, i, j, remain);
+			}
+			else
+			{
+				document.write("<h1>error</h1>");
+				return 1;
+			}
+		}
+	}
+	arr = null
+	return 0;
+}
+
+function recurse(sod)
+{
+	var v = 0;
+	var t = 0;
+	for (var i = 0; i < 9; i++)
+	{
+		for (var j = 0; j < 9; j++)
+		{
+			if (sod[i][j][0] == 0)
+			{
+				t = except(sod, i, j);
+				if (t == 1)
+				{
+					return 1;
+				}
+				if (sod[i][j][0] != 0)
+				{
+					t = 1;
+					continue;
+				}
+				v = 0;
+				for (var k = 1; k <= 9; k++)
+				{
+					if (sod[i][j][k] != 0)
+					{
+						if (v == 0)
+						{
+							v = sod[i][j][k];
+						}
+						else
+						{
+							v = 0;
+							break;
+						}
+					}
+					else
+					{
+						continue;
+					}
+				}
+				if (v > 0)
+				{
+					set(sod, i, j, v);
+					t = 1;
+				}
+			}
+		}
+	}
+	if (t == 1)
+	{
+		t = recurse(sod);
+		if (t == 1)
+		{
+			return 1;
+		}
+	}
+	return 0;
+}
+
+function line(sod, i, j)
+{
+	var v = sod[i][j][0];
+	if (v > 0)
+	{
+		for (var k = 0; k < 9; k++)
+		{
+			remove(sod, i, k, v);
+			remove(sod, k, j, v);
+			remove(sod, parseInt(i / 3) * 3 + parseInt(k / 3), parseInt(j / 3) * 3 + k % 3, v);
+		}
+	}
+}
+function remove(sod, i, j, v)
+{
+	sod[i][j][v] = 0;
+}
+function fork(sd0, sd1)
+{
+	for (var i = 0; i < 9; i++)
+	{
+		sd1[i] = new Array(i);
+		for (var j = 0; j < 9; j++)
+		{
+			sd1[i][j] = new Array(j);
+			for (var k = 0; k <= 9; k++)
+			{
+				sd1[i][j][k] = sd0[i][j][k];
+			}
+		}
+	}
+}
+function set(sod, i, j, v)
+{
+	sod[i][j][0] = v;
+	line(sod, i, j);
+}
+function print(sod)
+{
+	document.write("<br>");
+	document.write("<table>");
+	for (var i = 0; i < 9; i++)
+	{
+		document.write("<tr>");
+		for (var j = 0; j < 9; j++)
+		{
+			document.write("<td>");
+			if (sod[i][j][0] != 0)
+			{
+				document.write(sod[i][j][0]);
+				continue;
+			}
+			for (var k = 0; k <= 9; k++)
+			{
+				if (sod[i][j][k] != 0)
+				{
+					document.write(sod[i][j][k]);
+					if (k == 0)
+					{
+						break;
+					}
+				}
+			}
+			document.write("</td>");
+		}
+		document.write("</tr>");
+	}
+	document.write("</table>");
+}
+function initialize(sod)
+{
+	set(sod, 0, 3, 5);
+	set(sod, 0, 5, 8);
+	set(sod, 1, 0, 1);
+	set(sod, 1, 4, 2);
+	set(sod, 1, 6, 5);
+	set(sod, 1, 7, 8);
+	set(sod, 2, 1, 7);
+	set(sod, 2, 4, 3);
+	set(sod, 2, 7, 9);
+	set(sod, 3, 4, 1);
+	set(sod, 3, 5, 6);
+	set(sod, 4, 3, 2);
+	set(sod, 4, 8, 5);
+	set(sod, 5, 4, 8);
+	set(sod, 6, 0, 4);
+	set(sod, 6, 1, 1);
+	set(sod, 6, 5, 7);
+	set(sod, 6, 6, 2);
+	set(sod, 6, 7, 6);
+	set(sod, 6, 8, 9);
+	set(sod, 7, 0, 6);
+	set(sod, 7, 1, 5);
+	set(sod, 7, 4, 4);
+	set(sod, 7, 7, 7);
+	set(sod, 7, 8, 8);
+	set(sod, 8, 2, 9);
+	set(sod, 8, 8, 1);
+}
+	</script>
+	</body>
+</html>
