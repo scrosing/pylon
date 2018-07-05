@@ -1,4 +1,11 @@
 <html>
+	<header>
+		<style type="text/css">
+			td:nth-child(3n) {border-right-width:5px}
+			tr:nth-child(3n) {border-bottom:5pt solid black}
+		</style>
+		
+	</header>
 	<body>
 	<script>
 	var sd = new Array();
@@ -15,7 +22,7 @@
 		}
 	}
 	initialize(sd);
-	recurse(sd);
+	line2(sd);
 	finalize(sd, 0, 0, 0);
 
 function finalize(sod, i, j, v)
@@ -230,6 +237,91 @@ function line(sod, i, j)
 		}
 	}
 }
+function line2(sod)
+{
+	var current = 0;
+	var column = 0;
+	var row = 0;
+	var m = 0;
+	var n = 0;
+	var ret = 0;
+	for (var i = 0; i < 9; i++)
+	{
+		for (var j = 0; j < 9; j++)
+		{
+			if (sod[i][j][0] == 0)
+			{
+				for (var k = 1; k <= 9; k++)
+				{
+					row = 0;
+					column = 0;
+					current = sod[i][j][k];
+
+					if (current > 0)
+					{
+						m = parseInt(i / 3) * 3;
+						n = parseInt(j / 3) * 3;
+						for (var o = m; o < m + 3; o++)
+						{
+							for (var p = n; p < n + 3; p++)
+							{
+								if (sod[o][p][0] > 0)
+								{
+									if (sod[o][p][0] == current)
+									{
+										if (i != o)
+										{
+											row = 1;
+										}
+										if (j != p)
+										{
+											column = 1;
+										}
+									}
+								}
+								else
+								{
+									for (var q = 1; q <= 9; q++)
+									{
+										if (sod[o][p][q] == current)
+										{
+											if (i != o)
+											{
+												row = 1;
+											}
+											if (j != p)
+											{
+												column = 1;
+											}
+										}
+									}
+								}
+							}
+						}
+						for (var h = 0; h < 9; h++)
+						{
+							if (row == 0 && n != parseInt(h / 3) * 3 && sod[i][h][k] != 0)
+							{
+								remove(sod, i, h, current);
+								ret = 1;
+							}
+							if (column == 0 && m != parseInt(h / 3) * 3 && sod[h][j][k] != 0)
+							{
+								remove(sod, h, j, current);
+								ret = 1;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	recurse(sod);
+	if (ret == 1)
+	{
+		line2(sod);
+	}
+}
 function remove(sod, i, j, v)
 {
 	sod[i][j][v] = 0;
@@ -251,13 +343,16 @@ function fork(sd0, sd1)
 }
 function set(sod, i, j, v)
 {
-	sod[i][j][0] = v;
-	line(sod, i, j);
+	if (v > 0)
+	{
+		sod[i][j][0] = v;
+		line(sod, i, j);
+	}
 }
 function print(sod)
 {
 	document.write("<br>");
-	document.write("<table>");
+	document.write("<table border=\"1\">");
 	for (var i = 0; i < 9; i++)
 	{
 		document.write("<tr>");
@@ -267,6 +362,7 @@ function print(sod)
 			if (sod[i][j][0] != 0)
 			{
 				document.write(sod[i][j][0]);
+				document.write("</td>");
 				continue;
 			}
 			for (var k = 0; k <= 9; k++)
@@ -286,35 +382,39 @@ function print(sod)
 	}
 	document.write("</table>");
 }
+
+function print2(sod)
+{
+	document.write("<br>");
+	document.write("<table border=\"1\">");
+	for (var i = 0; i < 9; i++)
+	{
+		document.write("<tr>");
+		for (var j = 0; j < 9; j++)
+		{
+			document.write("<td width = \"30\">");
+			if (sod[i][j][0] != 0)
+			{
+				document.write(sod[i][j][0]);
+			}
+			document.write("</td>");
+		}
+		document.write("</tr>");
+	}
+	document.write("</table>");
+}
+
 function initialize(sod)
 {
-	set(sod, 0, 3, 5);
-	set(sod, 0, 5, 8);
-	set(sod, 1, 0, 1);
-	set(sod, 1, 4, 2);
-	set(sod, 1, 6, 5);
-	set(sod, 1, 7, 8);
-	set(sod, 2, 1, 7);
-	set(sod, 2, 4, 3);
-	set(sod, 2, 7, 9);
-	set(sod, 3, 4, 1);
-	set(sod, 3, 5, 6);
-	set(sod, 4, 3, 2);
-	set(sod, 4, 8, 5);
-	set(sod, 5, 4, 8);
-	set(sod, 6, 0, 4);
-	set(sod, 6, 1, 1);
-	set(sod, 6, 5, 7);
-	set(sod, 6, 6, 2);
-	set(sod, 6, 7, 6);
-	set(sod, 6, 8, 9);
-	set(sod, 7, 0, 6);
-	set(sod, 7, 1, 5);
-	set(sod, 7, 4, 4);
-	set(sod, 7, 7, 7);
-	set(sod, 7, 8, 8);
-	set(sod, 8, 2, 9);
-	set(sod, 8, 8, 1);
+	var t = "050600000000000730000100000000070800060000050100000000700040200004030000000500060";
+
+	var array = t.split("");
+
+
+	for(var i = 0; i < array.length; i++)
+	{
+		set(sod, parseInt(i / 9), parseInt(i % 9), parseInt(array[i]));
+	}
 }
 	</script>
 	</body>
